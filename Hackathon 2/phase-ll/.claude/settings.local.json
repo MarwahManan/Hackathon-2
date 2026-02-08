@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch --all --prune)",
+      "Bash(ls:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(dir:*)",
+      "Bash(findstr /V \"node_modules\")",
+      "Bash(findstr /V \".next\")"
+    ]
+  }
+}
