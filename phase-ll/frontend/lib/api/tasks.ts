@@ -12,6 +12,18 @@ export async function getTask(id: string): Promise<Task> {
   return response.data;
 }
 
+export async function getCalendarTasks(startDate?: string, endDate?: string): Promise<Task[]> {
+  const params = new URLSearchParams();
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+
+  const queryString = params.toString();
+  const url = queryString ? `/api/tasks/calendar?${queryString}` : '/api/tasks/calendar';
+
+  const response = await apiClient.get<Task[]>(url);
+  return response.data;
+}
+
 export async function createTask(input: CreateTaskInput): Promise<Task> {
   const response = await apiClient.post<Task>('/api/tasks', input);
   return response.data;

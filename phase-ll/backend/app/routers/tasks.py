@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlmodel import Session, select
 from uuid import UUID
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from app.database import get_db
 from app.middleware.auth import get_current_user
@@ -29,6 +29,53 @@ async def get_tasks(
         return tasks
     except Exception as e:
         log_error(e, "get_tasks")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": "An internal server error occurred", "code": "INTERNAL_ERROR"}
+        )
+
+
+@router.get("/calendar", response_model=List[TaskResponse])
+async def get_calendar_tasks(
+    start_date: Optional[str] = Query(None, description="Start date for calendar range (ISO format)"),
+    end_date: Optional[str] = Query(None, description="End date for calendar range (ISO format)"),
+    current_user: UUID = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get tasks for calendar view within date range
+
+    Returns tasks with due_date between start_date and end_date
+    If no dates provided, returns all tasks with due_date set
+    """
+    try:
+        # Base query for user's tasks
+        statement = select(Task).where(Task.user_id == current_user)
+
+        # Parse date strings to datetime objects
+        start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00')) if start_date else None
+        end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00')) if end_date else None
+
+        # Filter by date range if provided
+        if start_dt and end_dt:
+            statement = statement.where(
+                Task.due_date >= start_dt,
+                Task.due_date <= end_dt
+            )
+        elif start_dt:
+            statement = statement.where(Task.due_date >= start_dt)
+        elif end_dt:
+            statement = statement.where(Task.due_date <= end_dt)
+        else:
+            # If no date range, return only tasks with due_date set
+            statement = statement.where(Task.due_date.isnot(None))
+
+        statement = statement.order_by(Task.due_date.asc())
+        tasks = db.exec(statement).all()
+        log_request("GET", "/api/tasks/calendar", str(current_user), 200)
+        return tasks
+    except Exception as e:
+        log_error(e, "get_calendar_tasks")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"error": "An internal server error occurred", "code": "INTERNAL_ERROR"}
@@ -84,7 +131,10 @@ async def create_task(
         task = Task(
             user_id=current_user,
             title=task_data.title,
-            description=task_data.description
+            description=task_data.description,
+            due_date=task_data.due_date,
+            recurrence_pattern=task_data.recurrence_pattern,
+            recurrence_end_date=task_data.recurrence_end_date
         )
         db.add(task)
         db.commit()
@@ -131,6 +181,12 @@ async def update_task(
             task.description = task_data.description
         if task_data.is_completed is not None:
             task.is_completed = task_data.is_completed
+        if task_data.due_date is not None:
+            task.due_date = task_data.due_date
+        if task_data.recurrence_pattern is not None:
+            task.recurrence_pattern = task_data.recurrence_pattern
+        if task_data.recurrence_end_date is not None:
+            task.recurrence_end_date = task_data.recurrence_end_date
 
         # Update timestamp
         task.updated_at = datetime.utcnow()

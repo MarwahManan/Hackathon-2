@@ -29,10 +29,7 @@ async def sign_up_email(
             log_request("POST", "/api/auth/signup", request.email, 400)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "error": "User with this email already exists",
-                    "code": "EMAIL_EXISTS"
-                }
+                detail="User with this email already exists"
             )
 
         # Hash password
@@ -53,14 +50,16 @@ async def sign_up_email(
 
         log_request("POST", "/api/auth/signup", request.email, 201)
 
-        return AuthResponse(
-            token=token,
-            user={
+        return {
+            "success": True,
+            "token": token,
+            "user": {
                 "id": str(new_user.id),
                 "email": new_user.email,
-                "createdAt": new_user.created_at.isoformat()
+                "createdAt": new_user.created_at.isoformat(),
+                "updatedAt": new_user.updated_at.isoformat()
             }
-        )
+        }
 
     except HTTPException:
         raise
@@ -72,10 +71,7 @@ async def sign_up_email(
         log_error(e, "sign_up_email")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "error": "An internal server error occurred",
-                "code": "INTERNAL_ERROR"
-            }
+            detail="An internal server error occurred. Please try again."
         )
 
 
@@ -98,10 +94,7 @@ async def login(
             log_request("POST", "/api/auth/login", request.email, 401)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={
-                    "error": "Invalid email or password",
-                    "code": "INVALID_CREDENTIALS"
-                }
+                detail="Invalid email or password"
             )
 
         # Verify password
@@ -109,10 +102,7 @@ async def login(
             log_request("POST", "/api/auth/login", request.email, 401)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={
-                    "error": "Invalid email or password",
-                    "code": "INVALID_CREDENTIALS"
-                }
+                detail="Invalid email or password"
             )
 
         # Generate JWT token
@@ -120,14 +110,16 @@ async def login(
 
         log_request("POST", "/api/auth/login", request.email, 200)
 
-        return AuthResponse(
-            token=token,
-            user={
+        return {
+            "success": True,
+            "token": token,
+            "user": {
                 "id": str(user.id),
                 "email": user.email,
-                "createdAt": user.created_at.isoformat()
+                "createdAt": user.created_at.isoformat(),
+                "updatedAt": user.updated_at.isoformat()
             }
-        )
+        }
 
     except HTTPException:
         raise
@@ -135,8 +127,5 @@ async def login(
         log_error(e, "login")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "error": "An internal server error occurred",
-                "code": "INTERNAL_ERROR"
-            }
+            detail="An internal server error occurred. Please try again."
         )

@@ -6,7 +6,14 @@
       "Bash(powershell.exe:*)",
       "Bash(dir:*)",
       "Bash(findstr /V \"node_modules\")",
-      "Bash(findstr /V \".next\")"
+      "Bash(findstr /V \".next\")",
+      "Bash(npm run dev)",
+      "Bash(curl -X POST http://localhost:8000/api/auth/signup -H \"Content-Type: application/json\" -d \"{\"\"email\"\":\"\"localtest@example.com\"\",\"\"password\"\":\"\"testpass123\"\",\"\"name\"\":\"\"Test User\"\"}\")",
+      "Bash(curl:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr:*)",
+      "Bash(python:*)",
+      "Bash(taskkill:*)"
     ]
   }
 }

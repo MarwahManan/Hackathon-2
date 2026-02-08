@@ -16,5 +16,6 @@ class LoginRequest(BaseModel):
 
 class AuthResponse(BaseModel):
     """Response schema for authentication"""
+    success: bool = Field(default=True, description="Success status")
     token: str = Field(..., description="JWT access token")
     user: dict = Field(..., description="User information")

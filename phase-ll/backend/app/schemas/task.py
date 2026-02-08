@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ConfigDict, model_validator
 from datetime import datetime
 from uuid import UUID
-from typing import Optional
+from typing import Optional, Literal
 
 
 def to_camel(string: str) -> str:
@@ -18,6 +18,9 @@ class TaskResponse(BaseModel):
     title: str
     description: Optional[str]
     is_completed: bool
+    due_date: Optional[datetime]
+    recurrence_pattern: Optional[str]
+    recurrence_end_date: Optional[datetime]
     created_at: datetime
     updated_at: datetime
 
@@ -43,6 +46,21 @@ class TaskCreate(BaseModel):
         description="Task description (optional, max 2000 characters)"
     )
 
+    due_date: Optional[datetime] = Field(
+        default=None,
+        description="Task due date (optional)"
+    )
+
+    recurrence_pattern: Optional[Literal["DAILY", "WEEKLY", "MONTHLY"]] = Field(
+        default=None,
+        description="Recurrence pattern: DAILY, WEEKLY, or MONTHLY (optional)"
+    )
+
+    recurrence_end_date: Optional[datetime] = Field(
+        default=None,
+        description="End date for recurring tasks (optional)"
+    )
+
     model_config = ConfigDict(
         populate_by_name=True,
         alias_generator=to_camel
@@ -61,6 +79,13 @@ class TaskCreate(BaseModel):
         if v is not None:
             return v.strip() if v.strip() else None
         return None
+
+    @model_validator(mode='after')
+    def validate_recurrence(self):
+        """Validate recurrence logic: if no pattern, no end date allowed"""
+        if self.recurrence_pattern is None and self.recurrence_end_date is not None:
+            raise ValueError("recurrence_end_date cannot be set without recurrence_pattern")
+        return self
 
 
 class TaskUpdate(BaseModel):
@@ -84,6 +109,21 @@ class TaskUpdate(BaseModel):
         description="Task completion status (optional)"
     )
 
+    due_date: Optional[datetime] = Field(
+        default=None,
+        description="Task due date (optional)"
+    )
+
+    recurrence_pattern: Optional[Literal["DAILY", "WEEKLY", "MONTHLY"]] = Field(
+        default=None,
+        description="Recurrence pattern: DAILY, WEEKLY, or MONTHLY (optional)"
+    )
+
+    recurrence_end_date: Optional[datetime] = Field(
+        default=None,
+        description="End date for recurring tasks (optional)"
+    )
+
     model_config = ConfigDict(
         populate_by_name=True,
         alias_generator=to_camel
@@ -95,3 +135,10 @@ class TaskUpdate(BaseModel):
         if v is not None and (not v or v.strip() == ""):
             raise ValueError("Title cannot be empty")
         return v.strip() if v else None
+
+    @model_validator(mode='after')
+    def validate_recurrence(self):
+        """Validate recurrence logic: if no pattern, no end date allowed"""
+        if self.recurrence_pattern is None and self.recurrence_end_date is not None:
+            raise ValueError("recurrence_end_date cannot be set without recurrence_pattern")
+        return self

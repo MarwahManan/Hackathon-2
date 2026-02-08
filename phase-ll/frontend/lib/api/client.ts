@@ -36,9 +36,17 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      const errorResponse: ErrorResponse = error.response.data;
+      // Handle FastAPI error format: { detail: "error message" }
+      const detail = error.response.data?.detail;
+      const statusCode = error.response.status;
 
-      switch (errorResponse.statusCode) {
+      const errorResponse: ErrorResponse = {
+        error: typeof detail === 'string' ? detail : (detail?.error || 'An error occurred'),
+        code: detail?.code || ErrorCode.INTERNAL_ERROR,
+        statusCode: statusCode,
+      };
+
+      switch (statusCode) {
         case 401:
           if (typeof window !== 'undefined') {
             window.location.href = '/signin';

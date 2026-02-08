@@ -46,6 +46,26 @@ class Task(SQLModel, table=True):
         description="Task completion status (default: false)"
     )
 
+    # Calendar Fields
+    due_date: Optional[datetime] = Field(
+        default=None,
+        nullable=True,
+        description="Task due date (optional)"
+    )
+
+    recurrence_pattern: Optional[str] = Field(
+        default=None,
+        nullable=True,
+        max_length=20,
+        description="Recurrence pattern: DAILY, WEEKLY, or MONTHLY (optional)"
+    )
+
+    recurrence_end_date: Optional[datetime] = Field(
+        default=None,
+        nullable=True,
+        description="End date for recurring tasks (optional)"
+    )
+
     # Timestamps
     created_at: datetime = Field(
         default_factory=datetime.utcnow,
