@@ -11,9 +11,19 @@ app = FastAPI(
 )
 
 # CORS Configuration
+# Get allowed origins from environment variable or use defaults
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    settings.FRONTEND_URL,  # From environment variable
+]
+
+# Remove None values and duplicates
+allowed_origins = list(set(filter(None, allowed_origins)))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
