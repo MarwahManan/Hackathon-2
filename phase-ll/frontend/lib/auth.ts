@@ -11,11 +11,15 @@ export const auth = betterAuth({
     minPasswordLength: 8,
   },
   plugins: [
-    jwt({
-      secret: process.env.BETTER_AUTH_SECRET!,
-      expiresIn: "7d", // 7 days
-      algorithm: "HS256",
-    }),
+    jwt() // no options needed
+
+
+
+    // jwt({
+    //  secret: process.env.JWT_SECRET!,
+    //   expiresIn: "7d", // 7 days
+    //   algorithm: "HS256",
+    // }),
   ],
   trustedOrigins: [process.env.NEXT_PUBLIC_API_URL!],
 })

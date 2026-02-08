@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -7,6 +8,7 @@ import { useAuth } from "@/lib/context/AuthContext"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Card } from "@/components/ui/Card"
+
 
 export default function SignupPage() {
   const router = useRouter()

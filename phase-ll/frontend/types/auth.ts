@@ -20,10 +20,13 @@ export interface LoginCredentials {
 }
 
 export interface SignupCredentials {
+  name?: string; 
   email: string;
   password: string;
   confirmPassword: string;
 }
+ 
+
 
 export interface AuthResponse {
   success: boolean;
