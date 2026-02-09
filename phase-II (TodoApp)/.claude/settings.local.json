@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(if [ -d \"history/prompts/constitution\" ])",
+      "Bash(then ls -1 history/prompts/constitution/)",
+      "Bash(else echo \"0\")",
+      "Bash(fi)",
+      "Bash(test:*)",
+      "Bash(timeout 120 bash -c 'while [ ! -f \"\"C:\\\\Users\\\\HP I5 6th Gen\\\\Desktop\\\\Hackathon 2\\\\Hackathon-2\\\\phase-ll\\\\phase-II \\(TodoApp\\)\\\\frontend\\\\node_modules\\\\axios\\\\package.json\"\" ]; do sleep 2; done; echo \"\"Dependencies installed successfully\"\"')",
+      "Bash(ls:*)",
+      "Bash(npm install axios better-auth js-cookie react-hook-form zod @hookform/resolvers date-fns clsx)",
+      "Bash(timeout:*)"
+    ]
+  }
+}
